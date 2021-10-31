@@ -1,0 +1,29 @@
+---
+- name: "Padronizando a configuracao auto.direct"
+  hosts: clients
+
+  tasks:
+
+    - name: "Faz backup do arquivo auto.direct"
+      copy:
+        src: auto.direct
+        dest: /etc/auto.direct
+        owner: root
+        group: root
+        mode: '0644'
+        backup: true
+
+    - name: "Alterando auto.direct para serviços da tic"
+      lineinfile:
+        path: /etc/auto.direct
+        regexp: 'old_home.empresa.corp:/volumes'
+        line: '/area -rw,hard,intr,proto=tcp,timeo=10        home:/volumes'
+        backrefs: true
+
+    - name: "Reiniciando o autofs"
+      systemd:
+        name: "{{ item }}"
+        state: restarted
+        enabled: true
+      loop:
+        - autofs

@@ -1,0 +1,1 @@
+/area -rw,hard,intr,proto=tcp,timeo=10        old_home.empresa.corp:/volumes

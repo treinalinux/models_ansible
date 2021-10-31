@@ -1,0 +1,10 @@
+---
+- name: 'Template para sistemas Ubuntu'
+  hosts: ubuntu
+  become: true
+  user: alan
+  tasks:
+    - name: Install "autofs" package
+      apt:
+        name: autofs
+        state: present

@@ -1,0 +1,10 @@
+---
+- name: Updates for system Red Hat
+  hosts: redhat
+
+  tasks:
+
+    - name: Updates Red Rat
+      yum:
+        name: '*'
+        state: latest
