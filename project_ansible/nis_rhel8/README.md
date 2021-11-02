@@ -22,3 +22,21 @@ ansible-galaxy init clients
 mkdir -vp clients/files
 
 
+## inventory
+
+Tests sample with inventory.
+
+test of connection with module ping.
+
+```bash
+ansible --inventory=inventory.yml sede -m ping --ask-become-pass
+ansible --inventory=inventory.yml parana -m ping --ask-become-pass
+```
+
+Install new package on hosts of groups sede and parana
+
+```bash
+ansible --inventory=inventory.yml sede -m yum -a "name=curl state=present" --ask-become-pass
+ansible --inventory=inventory.yml parana -m yum -a "name=curl state=present" --ask-become-pass
+```
+

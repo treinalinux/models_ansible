@@ -1,0 +1,34 @@
+---
+all:
+  hosts:
+    alpha.empresa.corp:
+  children:
+    master:
+      hosts:
+        master.empresa.corp:
+    nodes:
+      hosts:
+        node01.empresa.corp:
+    micros:
+      hosts:
+        192.168.0.40:
+        192.168.0.42:
+    sede:
+      hosts:
+        master.empresa.corp:
+        node01.empresa.corp:
+        192.168.0.40:
+        192.168.0.42:
+    parana:
+      hosts:
+        nfs.empresa.corp:
+    macae:
+      hosts:
+        alpha.empresa.corp:
+    prod:
+      children:
+        sede:
+        parana:
+    test:
+      children:
+        macae:
