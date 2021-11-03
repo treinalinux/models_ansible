@@ -24,7 +24,7 @@ mkdir -vp clients/files
 
 ## inventory
 
-Tests sample with inventory.
+Tests sample on inventory used ad-hoc commands
 
 test of connection with module ping.
 
@@ -40,3 +40,8 @@ ansible --inventory=inventory.yml sede -m yum -a "name=curl state=present" --ask
 ansible --inventory=inventory.yml parana -m yum -a "name=curl state=present" --ask-become-pass
 ```
 
+Other example with shutdow on sede in 2 minutes
+
+```bash
+ansible --inventory=inventory.yml sede -m shell -a "shutdown -h 2" --ask-become-pass
+```

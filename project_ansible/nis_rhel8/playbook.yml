@@ -1,0 +1,173 @@
+#
+# Como usar:
+# ansible-playbook playbook.yml --user=user --private-key=key --inventory=hosts
+#
+---
+- hosts: master
+  remote_user: root
+  tasks:
+    - name: "Playbook baseado no CentOS Linux release 8.4.2105"
+      raw: dnf install epel-release.noarch -y; dnf --enablerepo=epel -y install ansible openssh-clients
+    - name: 'Instalação de pacotes e denpendências do Master NIS'
+      yum:
+        name:
+          - vim
+          - nfs-utils
+          - ypserv
+          - rpcbind
+          - yp-tools
+          - bind-utils
+          - httpd
+          - autofs
+          - krb5-server
+          - whowatch
+          - policycoreutils-python-utils.noarch
+          - libselinux
+          - selinux-policy-mls.noarch
+          - mcstrans
+          - setroubleshoot
+          - setroubleshoot-server
+          - setools-console
+          - glibc-langpack-pt
+          - chrony
+        state: latest
+    - name: "Definindo o domínio NIS"
+      command: ypdomainname cientifico.empresa.corp
+    - name: "Copiando arquivo de configuração ntp"
+      copy:
+        src: Configs/master/etc/chrony.conf
+        dest: /etc/chrony.conf
+    - name: "Copiando arquivo de configuração hosts"
+      copy:
+        src: Configs/master/etc/hosts
+        dest: /etc/hosts
+    - name: "Copiando arquivo de configuração network"
+      copy:
+        src: Configs/master/etc/sysconfig/network
+        dest: /etc/sysconfig/network
+    - name: "Copiando arquivo de configuração cliente nis"
+      copy:
+        src: Configs/master/etc/yp.conf
+        dest: /etc/yp.conf
+    - name: "Copiando arquivo de configuração yppasswdd"
+      copy:
+        src: Configs/master/etc/sysconfig/yppasswdd
+        dest: /etc/sysconfig/yppasswdd
+    - name: "Copiando arquivo de configuração securenets"
+      copy:
+        src: Configs/master/var/yp/securenets
+        dest: /var/yp/securenets
+    - name: "Copiando arquivo de configuração Makefile"
+      copy:
+        src: Configs/master/var/yp/Makefile
+        dest: /var/yp/Makefile
+    - name: "Copiando arquivo de configuração do krb5.conf"
+      copy:
+        src: Configs/master/etc/krb5.conf
+        dest: /etc/krb5.conf
+    - name: "Copiando arquivo de configuração do kdc.conf"
+      copy:
+        src: Configs/master/var/kerberos/krb5kdc/kdc.conf
+        dest: /var/kerberos/krb5kdc/kdc.conf
+    - name: "Copiando arquivo de configuração do kadm5"
+      copy:
+        src: Configs/master/var/kerberos/krb5kdc/kadm5.acl
+        dest: /var/kerberos/krb5kdc/kadm5.acl
+
+    - name: "Adicionando group unix nis no passwd"
+      ansible.lineinfile:
+        path: /etc/passwd
+        line: '+@GU_ADMIN_NIS'
+        create: true
+
+    - name: "Adicionando group unix nis no sudoers"
+      ansible.lineinfile:
+        path: /etc/sudoers
+        line: '+GU_ADMIN_NIS       ALL=(ALL)       NOPASSWD: ALL'
+        create: true
+
+    - name: "Adicionando netgroup nis"
+      ansible.lineinfile:
+        path: /etc/netgroup
+        line: '# sysadmins: GU_ADMIN_NIS (host,user,domainname) (-,alan,)'
+        create: true
+
+    - name: "Adicionando config no mapa nis auto.master "
+      ansible.lineinfile:
+        path: /etc/auto.master
+        line: "{{ item }}"
+        create: true
+      loop:
+        - '+auto.master'
+        - '/u	auto.home	-rw'
+        - '/-	/etc/auto_direct'
+
+    - name: "Adicionando mapa nis auto.home"
+      ansible.lineinfile:
+        path: /etc/auto.home
+        line: '+auto.home'
+        create: true
+
+    - name: "Adicionando mapa nis auto.local"
+      ansible.lineinfile:
+        path: /etc/auto.local
+        line: '# map de testes'
+        create: true
+
+    - name: "Adicionando auto_direct para serviços de infra"
+      ansible.lineinfile:
+        path: /etc/auto_direct
+        line: "{{ item }}"
+        create: true
+      loop:
+        - '+auto_direct'
+        - '/infra           -rw,hard,intr,proto=tcp,timeo=10        nfs.empresa.corp:/vol'
+
+    - name: "Inciando o firewalld"
+      command: systemctl start firewalld.service
+    - name: "Habilitando os serviços no firewalld"
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        permanent: true
+        state: enabled
+        immediate: true
+      loop:
+        - rpc-bind
+        - ntp
+        - nfs
+        - mountd
+
+    - name: "Habilitando as portas no firewalld"
+      ansible.posix.firewalld:
+        port: "{{ item }}"
+        permanent: true
+        state: enabled
+        immediate: true
+      loop:
+        - 944-951/tcp
+        - 944-951/udp
+
+    - name: "Habilitando os serviços no SELinux"
+      seboolean:
+        name: "{{ item }}"
+        state: true
+        persistent: true
+      loop:
+        - nis_enabled
+        - domain_can_mmap_files
+
+    - name: "Habilitando os serviços no systemd"
+      systemd:
+        name: "{{ item }}"
+        state: restarted
+        enabled: true
+      loop:
+        - firewalld
+        - rpcbind
+        - ypserv
+        - ypxfrd
+        - yppasswdd
+        - nis-domainname
+        - httpd
+        - autofs
+        - chronyd
