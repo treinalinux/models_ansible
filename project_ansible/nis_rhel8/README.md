@@ -26,18 +26,49 @@ mkdir -vp clients/files
 
 Tests sample on inventory used ad-hoc commands
 
-test of connection with module ping.
+test of connection with module ping and shell.
+
+*module ping*
 
 ```bash
-ansible --inventory=inventory.yml sede -m ping --ask-become-pass
-ansible --inventory=inventory.yml parana -m ping --ask-become-pass
+ansible --inventory=inventory.yml sede -m ping
+
+ansible --inventory=inventory.yml parana -m ping
 ```
 
+*module shell show files*
+
+```bash
+ansible --inventory=inventory.yml sede -m shell -a "cat /etc/redhat-release"
+```
+
+*module shell copy files*
+
+```bash
+ansible --inventory=inventory.yml sede -m shell -a "cp /etc/redhat-release /etc/redhat_bkp"
+```
+
+*module setup for get reports*
+
+```bash
+ansible --inventory=inventory.yml sede -m setup >> rel.json
+```
+
+
 Install new package on hosts of groups sede and parana
+
+*module yum*
 
 ```bash
 ansible --inventory=inventory.yml sede -m yum -a "name=curl state=present" --ask-become-pass
 ansible --inventory=inventory.yml parana -m yum -a "name=curl state=present" --ask-become-pass
+```
+
+*module package*
+
+```bash
+ansible --inventory=inventory.yml sede -m package -a "name=htop state=present" --ask-become-pass
+ansible --inventory=inventory.yml sede -m package -a "name=htop state=absent" --ask-become-pass
 ```
 
 Other example with shutdow on sede in 2 minutes
