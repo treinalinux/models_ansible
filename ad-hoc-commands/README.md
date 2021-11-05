@@ -14,6 +14,31 @@ ansible --inventory=inventory.yml sede -m ping
 ansible --inventory=inventory.yml parana -m ping
 ```
 
+## Facts
+
+```bash
+
+ansible --inventory=inventory.yml sede -m setup
+
+ansible --inventory=inventory.yml sede -m setup >> rel.json
+
+ansible --inventory=inventory.yml sede -m setup -a "filter=ansible_all_ipv4_addresses"
+
+ansible --inventory=inventory.yml sede -m setup -a "filter=ansible_mounts"
+
+ansible --inventory=inventory.yml sede -m setup -a "filter=ansible_interfaces"
+
+ansible --inventory=inventory.yml sede -m setup -a "filter=ansible_distribution_release"
+
+ansible --inventory=inventory.yml sede -m setup -a "filter=ansible_memfree_mb"
+
+ansible --inventory=inventory.yml sede -m setup -a "filter=ansible_distribution_version"
+
+ansible --inventory=inventory.yml sede -m setup -a "filter=ansible_os_family"
+
+ansible --inventory=inventory.yml sede -m setup -a "filter=ansible_memory_mb"
+
+```
 
 ## Manager packages
 
