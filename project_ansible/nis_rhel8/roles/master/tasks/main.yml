@@ -1,2 +1,53 @@
 ---
 # tasks file for master
+- name: Deploy server Master NIS
+  tasks:
+    - name: "Playbook baseado no CentOS Linux release 8.4.2105"
+      raw: dnf install epel-release.noarch -y
+    - name: 'Instalação de pacotes e denpendências do Master NIS'
+      yum:
+        name:
+          - vim
+          - nfs-utils
+          - ypserv
+          - rpcbind
+          - yp-tools
+          - bind-utils
+          - httpd
+          - autofs
+          - krb5-server
+          - whowatch
+          - policycoreutils-python-utils.noarch
+          - libselinux
+          - selinux-policy-mls.noarch
+          - mcstrans
+          - setroubleshoot
+          - setroubleshoot-server
+          - setools-console
+          - glibc-langpack-pt
+          - chrony
+        state: latest
+    - name: "Definindo o domínio NIS"
+      command: ypdomainname cientifico.empresa.corp
+    - name: "Copiando arquivo de configuração ntp"
+      copy:
+        src: Configs/master/etc/chrony.conf
+        dest: /etc/chrony.conf
+    - name: "Copiando arquivo de configuração hosts"
+      copy:
+        src: Configs/master/etc/hosts
+        dest: /etc/hosts
+    - name: "Copiando arquivo de configuração network"
+      copy:
+        src: Configs/master/etc/sysconfig/network
+        dest: /etc/sysconfig/network
+    - name: "Copiando arquivo de configuração cliente nis"
+      copy:
+        src: Configs/master/etc/yp.conf
+        dest: /etc/yp.conf
+    - name: "Copiando arquivo de configuração yppasswdd"
+      copy:
+        src: Configs/master/etc/sysconfig/yppasswdd
+        dest: /etc/sysconfig/yppasswdd
+    - name: "Copiando arquivo de configuração securenets"
+      copy:

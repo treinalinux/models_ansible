@@ -16,6 +16,8 @@ ansible --inventory=inventory.yml parana -m ping
 
 ## Facts
 
+Facts more details [here](https://docs.ansible.com/ansible/latest/user_guide/playbooks_vars_facts.html)
+
 ```bash
 
 ansible --inventory=inventory.yml sede -m setup
