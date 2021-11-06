@@ -3,5 +3,12 @@
 # ansible-playbook playbook.yml --user=user --private-key=key --inventory=hosts
 #
 ---
-- hosts: master
-  remote_user: root
+- hosts: all
+  become: true
+
+
+  roles:
+    - master
+    - auxiliary
+    - nfs
+    - clients
