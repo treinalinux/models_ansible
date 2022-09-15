@@ -1,0 +1,24 @@
+---
+- name: Treina Linux
+  hosts: all
+  become: true
+  tasks:
+    - name: 'Novos servidores access'
+      ansible.builtin.lineinfile:
+        path: /etc/security/access.conf
+        backup: true
+        state: present
+        line: "{{ item }}"
+      with_items:
+        - 'Demanda para novos servidores'
+        - '#+ : root : LOCAL 192.168.0.146'
+
+    - name: 'Servidor de logs remoto'
+      ansible.builtin.lineinfile:
+        path: /etc/rsyslog.conf
+        backup: true
+        state: present
+        line: "{{ item }}"
+      with_items:
+        - 'Demanda para servidor remoto'
+        - '#authpriv.* @rmt-syslog.empresa.corp:port'
